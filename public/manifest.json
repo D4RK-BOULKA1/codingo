@@ -1,0 +1,18 @@
+{
+  "name": "Codingo — Le Duolingo du Code",
+  "short_name": "Codingo",
+  "description": "Apprenez le HTML, le CSS et la programmation étape par étape avec des leçons courtes, des cœurs et un tuteur IA.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#4CC2FF",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "lang": "fr-FR",
+  "orientation": "portrait"
+}

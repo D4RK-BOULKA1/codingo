@@ -1,0 +1,180 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-blue: #4CC2FF;
+  --color-brand-blue-dark: #1B9BE0;
+  --color-brand-navy: #0B3A5B;
+  --color-brand-navy-light: #164E74;
+  --color-brand-white: #FFFFFF;
+  --color-brand-yellow: #FFC83D;
+  --color-brand-yellow-dark: #E0A81B;
+  --color-brand-green: #2CD98F;
+  --color-brand-green-dark: #189C63;
+  --color-brand-red: #FF5353;
+  --color-brand-red-dark: #D63030;
+  --color-brand-gray-light: #F8FAFC;
+  --color-brand-gray-border: #E2E8F0;
+  --color-brand-gray-shadow: #CBD5E1;
+  --color-brand-gray-text: #64748B;
+  --font-nunito: var(--font-nunito), 'Nunito', sans-serif;
+}
+
+:root {
+  --background: #FFFFFF;
+  --foreground: #0B3A5B;
+}
+
+body {
+  background-color: #FFFFFF;
+  color: #0B3A5B;
+  font-family: var(--font-nunito), 'Nunito', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* --------------------------------------------------------------------------
+   DESIGN SYSTEM : BOUTONS "FLAT 3D" (SANS AUCUN DÉGRADÉ)
+   -------------------------------------------------------------------------- */
+.btn-3d {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 1rem;
+  padding: 0.875rem 1.75rem;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background-color 0.15s ease;
+  user-select: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-3d:active {
+  transform: translateY(4px);
+}
+
+/* Bouton Bleu Primaire */
+.btn-3d-blue {
+  background-color: #4CC2FF;
+  color: #0B3A5B;
+  border: 2px solid #1B9BE0;
+  box-shadow: 0 4px 0 #1B9BE0;
+}
+.btn-3d-blue:hover {
+  background-color: #63cbff;
+}
+.btn-3d-blue:active {
+  box-shadow: 0 0 0 #1B9BE0;
+}
+
+/* Bouton Jaune Accent (XP, Récompenses, Action Star) */
+.btn-3d-yellow {
+  background-color: #FFC83D;
+  color: #0B3A5B;
+  border: 2px solid #E0A81B;
+  box-shadow: 0 4px 0 #E0A81B;
+}
+.btn-3d-yellow:hover {
+  background-color: #ffd25b;
+}
+.btn-3d-yellow:active {
+  box-shadow: 0 0 0 #E0A81B;
+}
+
+/* Bouton Blanc / Neutre */
+.btn-3d-white {
+  background-color: #FFFFFF;
+  color: #0B3A5B;
+  border: 2px solid #CBD5E1;
+  box-shadow: 0 4px 0 #CBD5E1;
+}
+.btn-3d-white:hover {
+  background-color: #F8FAFC;
+}
+.btn-3d-white:active {
+  box-shadow: 0 0 0 #CBD5E1;
+}
+
+/* Bouton Vert Succès */
+.btn-3d-green {
+  background-color: #2CD98F;
+  color: #0B3A5B;
+  border: 2px solid #189C63;
+  box-shadow: 0 4px 0 #189C63;
+}
+.btn-3d-green:hover {
+  background-color: #3de49b;
+}
+.btn-3d-green:active {
+  box-shadow: 0 0 0 #189C63;
+}
+
+/* Bouton Rouge Erreur */
+.btn-3d-red {
+  background-color: #FF5353;
+  color: #FFFFFF;
+  border: 2px solid #D63030;
+  box-shadow: 0 4px 0 #D63030;
+}
+.btn-3d-red:hover {
+  background-color: #ff6868;
+}
+.btn-3d-red:active {
+  box-shadow: 0 0 0 #D63030;
+}
+
+/* Bouton Désactivé / Verrouillé */
+.btn-3d-disabled {
+  background-color: #E2E8F0;
+  color: #94A3B8;
+  border: 2px solid #CBD5E1;
+  box-shadow: 0 4px 0 #CBD5E1;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   CARTES FLAT 3D
+   -------------------------------------------------------------------------- */
+.card-3d {
+  background-color: #FFFFFF;
+  border: 2px solid #CBD5E1;
+  box-shadow: 0 4px 0 #CBD5E1;
+  border-radius: 1.25rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card-3d-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #CBD5E1;
+}
+
+.card-3d-blue {
+  background-color: #FFFFFF;
+  border: 2px solid #1B9BE0;
+  box-shadow: 0 4px 0 #1B9BE0;
+  border-radius: 1.25rem;
+}
+
+.card-3d-yellow {
+  background-color: #FFFFFF;
+  border: 2px solid #E0A81B;
+  box-shadow: 0 4px 0 #E0A81B;
+  border-radius: 1.25rem;
+}
+
+/* Accessibilité : désactivation des animations pour les utilisateurs sensibles */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .btn-3d:active {
+    transform: none !important;
+  }
+}

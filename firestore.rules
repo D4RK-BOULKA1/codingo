@@ -1,0 +1,100 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Champs que le client n'a jamais le droit de modifier lui-même
+    function protectedFieldsUnchanged() {
+      let affected = request.resource.data.diff(resource.data).affectedKeys();
+      return !affected.hasAny([
+        'role',
+        'isPremium',
+        'premiumExpiresAt',
+        'gems',
+        'totalXp',
+        'leagueId',
+        'leagueXp',
+        'hearts',
+        'lastHeartLostAt',
+        'nextHeartRecoveryAt',
+        'streakDays',
+        'lastStreakDate',
+        'streakFrozen'
+      ]);
+    }
+
+    match /users/{userId} {
+      // Lecture : tout utilisateur connecté (profils publics) ou admin
+      allow read: if isSignedIn();
+
+      // Création du profil juste après inscription
+      allow create: if isOwner(userId)
+        && request.resource.data.uid == userId
+        && request.resource.data.role == 'user'
+        && request.resource.data.hearts == 5
+        && request.resource.data.totalXp == 0;
+
+      // Mise à jour profil (hors champs protégés gamification / premium / rôle)
+      allow update: if (isOwner(userId) && protectedFieldsUnchanged())
+        || isAdmin();
+
+      allow delete: if false;
+    }
+
+    match /users/{userId}/progress/{progressId} {
+      allow read, write: if isOwner(userId) || isAdmin();
+    }
+
+    match /users/{userId}/mistakes/{mistakeId} {
+      allow read, write: if isOwner(userId) || isAdmin();
+    }
+
+    // Réservation de pseudos uniques
+    match /usernames/{username} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.username == username;
+      allow delete: if isSignedIn()
+        && resource.data.uid == request.auth.uid;
+      allow update: if false;
+    }
+
+    match /courses/{document=**} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /lessons/{lessonId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /units/{unitId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /config/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
