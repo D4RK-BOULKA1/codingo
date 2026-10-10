@@ -1,13 +1,18 @@
 import { PaymentProvider, CheckoutSessionOptions } from "./types";
 
+const API_URL = "https://api.saspay.me/api/v1";
+
+// Prix de l'abonnement Premium, en francs CFA (environ 25 euros). Modifie ce chiffre si besoin.
+const PREMIUM_AMOUNT = "16400.00";
+const PREMIUM_CURRENCY = "XOF";
+
 /**
- * Implémentation SaaSpay pour Codingo.
- * Gère la création de sessions d'abonnement et la vérification des webhooks.
+ * Implémentation SasPay pour Codingo (checkout hébergé).
+ * Doc : https://docs.saspay.me/api-reference/payments/checkout-create
  */
 export class SaaspayProvider extends PaymentProvider {
   private apiKey: string;
   private webhookSecret: string;
-  private apiUrl: string = "https://api.saaspay.com/v1"; // Hypothèse URL API
 
   constructor() {
     super();
@@ -17,46 +22,54 @@ export class SaaspayProvider extends PaymentProvider {
 
   async createCheckoutSession(options: CheckoutSessionOptions): Promise<string> {
     if (!this.apiKey) {
-      console.warn("SAASPAY_API_KEY manquante. Utilisation du mode simulation.");
-      return `${options.successUrl}?session_id=mock_session_${Date.now()}`;
+      throw new Error("SAASPAY_API_KEY manquante");
     }
 
-    try {
-      const response = await fetch(`${this.apiUrl}/checkout/sessions`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${this.apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+    const email = options.userEmail || "client@codingo.local";
+
+    const response = await fetch(`${API_URL}/checkout-sessions/`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${this.apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        amount: PREMIUM_AMOUNT,
+        currency: PREMIUM_CURRENCY,
+        description: "Abonnement Codingo Premium",
+        customer_email: email,
+        customer_name: email.split("@")[0],
+        return_url: options.successUrl,
+        metadata: {
           userId: options.userId,
-          email: options.userEmail,
           priceId: options.priceId,
-          successUrl: options.successUrl,
-          cancelUrl: options.cancelUrl,
-          mode: "subscription",
-          metadata: {
-            userId: options.userId,
-          }
-        }),
-      });
+        },
+      }),
+    });
 
-      if (!response.ok) {
-        throw new Error(`SaaSpay error: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      return data.url; // L'URL de redirection vers l'interface de paiement
-    } catch (err) {
-      console.error("Erreur lors de la création de la session SaaSpay:", err);
-      // Fallback sécurisé vers une simulation en local si l'API échoue
-      return `${options.successUrl}?session_id=fallback_mock_${Date.now()}`;
+    const text = await response.text();
+    let json: any = null;
+    try {
+      json = text ? JSON.parse(text) : null;
+    } catch {
+      json = null;
     }
+
+    if (!response.ok) {
+      throw new Error(`SasPay ${response.status}: ${text.slice(0, 500)}`);
+    }
+
+    const data = json?.data ?? json;
+    const url = data?.checkout_url;
+    if (!url) {
+      throw new Error(`SasPay n'a pas renvoyé checkout_url: ${text.slice(0, 500)}`);
+    }
+
+    return url;
   }
 
   async verifyWebhook(body: any, signature: string): Promise<any> {
-    // Dans une implémentation réelle, on vérifierait la signature avec le secret
-    // Pour l'instant, on fait confiance au corps (à sécuriser avec crypto.createHmac)
+    // À sécuriser plus tard (signature HMAC SasPay).
     return body;
   }
 }
